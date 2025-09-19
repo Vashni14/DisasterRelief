@@ -11,6 +11,7 @@ import RoadReports from './pages/RoadReports';
 import Shelters from './pages/Shelters';
 import AdminDashboard from './pages/AdminDashboard';
 import ChatBot from './pages/ChatBot';
+import Profile from './pages/Profile';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -60,6 +61,10 @@ function App() {
           <Route 
             path="/dashboard" 
             element={user ? <Dashboard user={user} /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/profile" 
+            element={user ? <Profile user={user} /> : <Navigate to="/login" />} 
           />
           <Route 
             path="/sos" 
