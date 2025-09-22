@@ -352,58 +352,7 @@ const Profile = ({ user, setUser }) => {
       </div>
 
       {/* Emergency Preparedness Section */}
-      <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 shadow-lg mt-6">
-        <h2 className="text-xl font-semibold mb-4 border-b border-gray-700 pb-2">Emergency Preparedness</h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="font-medium text-blue-400 mb-2">Emergency Kit Checklist</h3>
-            <ul className="text-sm space-y-1">
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                <span>Water (1 gallon per person per day)</span>
-              </li>
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                <span>Non-perishable food</span>
-              </li>
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                <span>Flashlight with extra batteries</span>
-              </li>
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                <span>First aid kit</span>
-              </li>
-              <li className="flex items-center">
-                <input type="checkbox" className="mr-2" />
-                <span>Medications (7-day supply)</span>
-              </li>
-            </ul>
-          </div>
-          
-          <div className="bg-gray-700 p-4 rounded-lg">
-            <h3 className="font-medium text-blue-400 mb-2">Emergency Plan</h3>
-            <ul className="text-sm space-y-2">
-              <li>
-                <button className="text-blue-400 hover:text-blue-300 text-left">
-                  Download Emergency Plan Template
-                </button>
-              </li>
-              <li>
-                <button className="text-blue-400 hover:text-blue-300 text-left">
-                  Share Your Plan with Emergency Contacts
-                </button>
-              </li>
-              <li>
-                <button className="text-blue-400 hover:text-blue-300 text-left">
-                  Practice Your Evacuation Route
-                </button>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };
