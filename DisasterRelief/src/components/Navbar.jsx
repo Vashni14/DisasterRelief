@@ -6,19 +6,29 @@ const Navbar = ({ user, onLogout }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getRoleBadge = () => {
-    const badges = {
-      'super_admin': { text: 'Super Admin', color: 'bg-red-500' },
-      'department_admin': { text: 'Admin', color: 'bg-green-500' },
-      'user': { text: 'User', color: 'bg-blue-500' }
+  const getRoleConfig = () => {
+    const configs = {
+      'super_admin': { 
+        badge: 'Super Admin', 
+        badgeColor: 'bg-red-500',
+        bannerColor: 'bg-gradient-to-r from-red-600 to-red-700',
+        bannerText: '⚡ SUPER ADMINISTRATOR MODE'
+      },
+      'department_admin': { 
+        badge: 'Admin', 
+        badgeColor: 'bg-green-500',
+        bannerColor: 'bg-gradient-to-r from-green-600 to-green-700', 
+        bannerText: `🛡️ ${user.department?.replace(/_/g, ' ').toUpperCase()} ADMIN`
+      },
+      'user': { 
+        badge: 'User', 
+        badgeColor: 'bg-blue-500',
+        bannerColor: null,
+        bannerText: null
+      }
     };
     
-    const badge = badges[user.role] || badges.user;
-    return (
-      <span className={`${badge.color} text-white px-2 py-1 rounded text-xs font-medium`}>
-        {badge.text}
-      </span>
-    );
+    return configs[user.role] || configs.user;
   };
 
   const getUserDisplayName = () => {
@@ -30,12 +40,11 @@ const Navbar = ({ user, onLogout }) => {
     return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  // Navigation links based on user role
   const getNavigationLinks = () => {
     const links = {
       user: [
         { path: '/dashboard', label: 'Dashboard', icon: '📊' },
-        { path: '/sos', label: 'SOS Alert', icon: '🚨' },
+        { path: '/sos', label: 'SOS', icon: '🚨' },
         { path: '/map', label: 'Map', icon: '🗺️' },
         { path: '/roads', label: 'Roads', icon: '🛣️' },
         { path: '/shelters', label: 'Shelters', icon: '🏠' },
@@ -58,32 +67,16 @@ const Navbar = ({ user, onLogout }) => {
     navigate('/');
   };
 
+  const roleConfig = getRoleConfig();
   const navigationLinks = getNavigationLinks();
-
-  const getRoleBanner = () => {
-    const banners = {
-      'super_admin': {
-        color: 'bg-gradient-to-r from-red-600 to-red-700',
-        text: '⚡ SUPER ADMINISTRATOR MODE - Full System Access'
-      },
-      'department_admin': {
-        color: 'bg-gradient-to-r from-green-600 to-green-700',
-        text: `🛡️ ADMIN MODE - ${user.department?.replace(/_/g, ' ').toUpperCase()}`
-      }
-    };
-    
-    return banners[user.role];
-  };
-
-  const roleBanner = getRoleBanner();
 
   return (
     <>
-      {/* Role Banner */}
-      {roleBanner && (
-        <div className={`${roleBanner.color} text-white text-center py-2`}>
+      {/* Role Banner - Only for admins */}
+      {roleConfig.bannerColor && (
+        <div className={`${roleConfig.bannerColor} text-white text-center py-2`}>
           <div className="max-w-7xl mx-auto px-4">
-            <span className="text-sm font-medium">{roleBanner.text}</span>
+            <span className="text-sm font-medium">{roleConfig.bannerText}</span>
           </div>
         </div>
       )}
@@ -91,73 +84,81 @@ const Navbar = ({ user, onLogout }) => {
       {/* Main Navbar */}
       <nav className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center">
+          <div className="flex justify-between items-center h-20"> {/* Increased height */}
+            
+            {/* Logo Section */}
+            <div className="flex items-center flex-shrink-0">
               <Link 
                 to={navigationLinks[0]?.path || '/'} 
-                className="flex items-center space-x-3"
+                className="flex items-center space-x-3 hover:opacity-90 transition-opacity"
               >
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">🚨</span>
+                <div className="w-10 h-10 bg-red-500 rounded-lg flex items-center justify-center shadow-lg">
+                  <span className="text-white text-xl">🚨</span>
                 </div>
-                <div>
-                  <span className="text-white text-xl font-bold">Emergency</span>
-                  <span className="text-red-400 text-xl font-bold">Response</span>
+                <div className="flex flex-col">
+                  <span className="text-white text-lg font-bold leading-tight">Emergency</span>
+                  <span className="text-red-400 text-lg font-bold leading-tight">Response</span>
                 </div>
               </Link>
             </div>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Centered */}
             {navigationLinks.length > 0 && (
-              <div className="hidden md:flex items-center space-x-1">
+              <div className="hidden lg:flex items-center space-x-1 mx-8 flex-1 justify-center">
                 {navigationLinks.map((link) => (
                   <Link
                     key={link.path}
                     to={link.path}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-2 ${
+                    className={`px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200 flex items-center space-x-2 min-w-[100px] justify-center ${
                       location.pathname === link.path
-                        ? 'bg-gray-700 text-white shadow-lg'
-                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                        ? 'bg-gray-700 text-white shadow-lg border border-gray-600'
+                        : 'text-gray-300 hover:bg-gray-700 hover:text-white border border-transparent'
                     }`}
                   >
                     <span className="text-base">{link.icon}</span>
-                    <span>{link.label}</span>
+                    <span className="whitespace-nowrap">{link.label}</span>
                   </Link>
                 ))}
               </div>
             )}
 
             {/* User Section - Desktop */}
-            <div className="hidden md:flex items-center space-x-4">
-              <div className="flex items-center space-x-3 bg-gray-700 rounded-lg px-3 py-2">
+            <div className="hidden lg:flex items-center space-x-4 flex-shrink-0">
+              <div className="flex items-center space-x-4 bg-gray-700 rounded-xl px-4 py-3 border border-gray-600">
+                {/* User Avatar and Info */}
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
                     {getUserInitials()}
                   </div>
                   <div className="text-right">
-                    <div className="text-sm text-white font-medium truncate max-w-[120px]">
+                    <div className="text-sm text-white font-medium whitespace-nowrap">
                       {getUserDisplayName()}
                     </div>
-                    {getRoleBadge()}
+                    <div className={`${roleConfig.badgeColor} text-white px-2 py-1 rounded text-xs font-medium mt-1 inline-block`}>
+                      {roleConfig.badge}
+                    </div>
                   </div>
                 </div>
                 
-                <button
-                  onClick={handleLogout}
-                  className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm text-white font-medium transition duration-200 flex items-center space-x-2"
-                  title="Logout"
-                >
-                  <span>🚪</span>
-                </button>
+                {/* Logout Button */}
+                <div className="border-l border-gray-600 pl-4">
+                  <button
+                    onClick={handleLogout}
+                    className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-sm text-white font-medium transition duration-200 flex items-center space-x-2 shadow-md"
+                    title="Logout"
+                  >
+                    <span className="text-base">🚪</span>
+                    <span className="whitespace-nowrap">Logout</span>
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Mobile Menu Button */}
-            <div className="md:hidden">
+            <div className="lg:hidden">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="text-gray-300 hover:text-white p-2 rounded-lg bg-gray-700"
+                className="text-gray-300 hover:text-white p-3 rounded-xl bg-gray-700 border border-gray-600 transition-all duration-200"
               >
                 {isMenuOpen ? (
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,44 +176,49 @@ const Navbar = ({ user, onLogout }) => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-700 bg-gray-800">
-            <div className="px-4 py-3 space-y-2">
+          <div className="lg:hidden border-t border-gray-700 bg-gray-800">
+            <div className="px-4 py-4 space-y-3">
+              
               {/* Mobile Navigation Links */}
-              {navigationLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`block px-4 py-3 rounded-lg text-base font-medium flex items-center space-x-3 ${
-                    location.pathname === link.path
-                      ? 'bg-gray-700 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className="text-lg">{link.icon}</span>
-                  <span>{link.label}</span>
-                </Link>
-              ))}
+              <div className="grid grid-cols-2 gap-3">
+                {navigationLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`p-4 rounded-xl text-base font-medium flex items-center space-x-3 justify-center text-center ${
+                      location.pathname === link.path
+                        ? 'bg-gray-700 text-white border border-gray-600'
+                        : 'text-gray-300 hover:bg-gray-700 hover:text-white border border-transparent'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className="text-lg">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </Link>
+                ))}
+              </div>
 
               {/* Mobile User Info */}
-              <div className="border-t border-gray-700 pt-3 mt-3">
-                <div className="px-4 py-3 bg-gray-700 rounded-lg">
-                  <div className="flex items-center space-x-3 mb-3">
-                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">
+              <div className="border-t border-gray-700 pt-4 mt-2">
+                <div className="bg-gray-700 rounded-xl p-4 border border-gray-600">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-md">
                       {getUserInitials()}
                     </div>
                     <div className="flex-1">
-                      <div className="text-sm text-white font-medium">{getUserDisplayName()}</div>
-                      <div className="text-xs text-gray-400">{user.email}</div>
+                      <div className="text-base text-white font-medium">{getUserDisplayName()}</div>
+                      <div className="text-sm text-gray-400 mt-1">{user.email}</div>
+                      <div className={`${roleConfig.badgeColor} text-white px-3 py-1 rounded text-sm font-medium mt-2 inline-block`}>
+                        {roleConfig.badge}
+                      </div>
                     </div>
-                    {getRoleBadge()}
                   </div>
                   
                   <button
                     onClick={handleLogout}
-                    className="w-full bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm text-white font-medium transition duration-200 flex items-center justify-center space-x-2"
+                    className="w-full bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl text-base text-white font-medium transition duration-200 flex items-center justify-center space-x-3 shadow-md"
                   >
-                    <span>🚪</span>
+                    <span className="text-lg">🚪</span>
                     <span>Logout</span>
                   </button>
                 </div>

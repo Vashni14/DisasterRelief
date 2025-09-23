@@ -5,14 +5,14 @@ import RoleSelection from './components/RoleSelection';
 import UserLogin from './components/UserLogin';
 import UserSignup from './components/UserSignup';
 import AdminLogin from './components/AdminLogin';
-import SuperAdminLogin from './components/SuperAdminLogin'; // Add this import
+import SuperAdminLogin from './components/SuperAdminLogin';
 import Dashboard from './pages/Dashboard';
 import SOSPage from './pages/SOSPage';
 import MapView from './pages/MapView';
 import RoadReports from './pages/RoadReports';
 import Shelters from './pages/Shelters';
 import AdminDashboard from './pages/AdminDashboard';
-import SuperAdminDashboard from './pages/SuperAdminDashboard'; // Add this import
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import ChatBot from './pages/ChatBot';
 import Profile from './pages/Profile';
 
@@ -20,108 +20,276 @@ function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Clear cache and localStorage on component mount
   useEffect(() => {
-    // Check if user is logged in (from localStorage)
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
-    setIsLoading(false);
+    const clearCache = () => {
+      // Clear all localStorage items except for development
+      const keysToKeep = []; // Keep this empty to clear everything
+      const keysToRemove = Object.keys(localStorage).filter(key => 
+        !keysToKeep.includes(key)
+      );
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+
+      // Clear sessionStorage
+      sessionStorage.clear();
+
+      // Force clear browser cache (aggressive approach)
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          names.forEach(name => {
+            caches.delete(name);
+          });
+        });
+      }
+
+      console.log('🔄 Cache and localStorage cleared');
+    };
+
+    // Clear cache immediately
+    clearCache();
+
+    // Set up beforeunload to clear on page refresh
+    const handleBeforeUnload = () => {
+      clearCache();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    // Check for valid user session
+    const checkUserSession = () => {
+      const savedUser = localStorage.getItem('user');
+      
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          
+          // Validate user data structure
+          if (userData && userData.id && userData.role) {
+            console.log('✅ Valid user session found:', userData.email);
+            setUser(userData);
+          } else {
+            console.log('❌ Invalid user data structure, clearing...');
+            localStorage.removeItem('user');
+          }
+        } catch (error) {
+          console.error('❌ Error parsing user data:', error);
+          localStorage.removeItem('user');
+        }
+      } else {
+        console.log('🔍 No user session found');
+      }
+      
+      setIsLoading(false);
+    };
+
+    // Small delay to ensure cache is cleared before checking session
+    setTimeout(checkUserSession, 100);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   const handleLogin = (userData) => {
+    console.log('👤 User logging in:', userData.email);
+    
+    // Validate user data before saving
+    if (!userData || !userData.id || !userData.role) {
+      console.error('❌ Invalid user data provided for login');
+      return;
+    }
+
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    
+    // Store with timestamp for session management
+    const userWithTimestamp = {
+      ...userData,
+      loginTime: new Date().toISOString()
+    };
+    
+    localStorage.setItem('user', JSON.stringify(userWithTimestamp));
+    console.log('💾 User data saved to localStorage');
   };
 
   const handleLogout = () => {
+    console.log('👋 User logging out');
+    
+    // Clear all user-related data
     setUser(null);
     localStorage.removeItem('user');
+    sessionStorage.clear();
+
+    // Clear any Firebase auth state if needed
+    if (window.firebase && window.firebase.auth) {
+      window.firebase.auth().signOut();
+    }
+
+    // Force hard redirect to ensure clean state
+    window.location.href = '/';
   };
+
+  // Add session expiration check
+  useEffect(() => {
+    const checkSessionExpiry = () => {
+      const savedUser = localStorage.getItem('user');
+      
+      if (savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          if (userData.loginTime) {
+            const loginTime = new Date(userData.loginTime);
+            const now = new Date();
+            const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+            
+            // Auto-logout after 24 hours for security
+            if (hoursDiff > 24) {
+              console.log('⏰ Session expired, auto-logout');
+              handleLogout();
+            }
+          }
+        } catch (error) {
+          console.error('Error checking session expiry:', error);
+        }
+      }
+    };
+
+    // Check every 5 minutes
+    const interval = setInterval(checkSessionExpiry, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading...</p>
+          <p className="text-gray-500 text-sm mt-2">Clearing cache and checking session</p>
+        </div>
       </div>
     );
   }
 
+  // Helper function to determine redirect path
+  const getRedirectPath = (user) => {
+    switch (user.role) {
+      case 'user':
+        return '/dashboard';
+      case 'department_admin':
+        return '/admin-dashboard';
+      case 'super_admin':
+        return '/superadmin-dashboard';
+      default:
+        return '/';
+    }
+  };
+
   return (
     <Router>
       <div className="App bg-gray-900 min-h-screen text-gray-100">
-        {user && user.role !== 'guest' && <Navbar user={user} onLogout={handleLogout} />}
+        {user && <Navbar user={user} onLogout={handleLogout} />}
         
         <Routes>
-          {/* Role selection always default */}
-          <Route path="/" element={<RoleSelection />} />
-
-          {/* User Routes */}
+          {/* Public Routes */}
+          <Route 
+            path="/" 
+            element={!user ? <RoleSelection /> : <Navigate to={getRedirectPath(user)} replace />} 
+          />
+          
           <Route 
             path="/user-login" 
-            element={user && user.role === 'user' ? <Navigate to="/dashboard" /> : <UserLogin onLogin={handleLogin} />} 
+            element={!user ? <UserLogin onLogin={handleLogin} /> : <Navigate to={getRedirectPath(user)} replace />} 
           />
+          
           <Route 
             path="/user-signup" 
-            element={user && user.role === 'user' ? <Navigate to="/dashboard" /> : <UserSignup onLogin={handleLogin} />} 
+            element={!user ? <UserSignup onLogin={handleLogin} /> : <Navigate to={getRedirectPath(user)} replace />} 
           />
-
-          {/* Admin Routes */}
+          
           <Route 
             path="/admin-login" 
-            element={user && user.role === 'department_admin' ? <Navigate to="/admin-dashboard" /> : <AdminLogin onLogin={handleLogin} />} 
+            element={!user ? <AdminLogin onLogin={handleLogin} /> : <Navigate to={getRedirectPath(user)} replace />} 
           />
-
-          {/* Super Admin Routes */}
+          
           <Route 
             path="/superadmin-login" 
-            element={user && user.role === 'super_admin' ? <Navigate to="/superadmin-dashboard" /> : <SuperAdminLogin onLogin={handleLogin} />} 
+            element={!user ? <SuperAdminLogin onLogin={handleLogin} /> : <Navigate to={getRedirectPath(user)} replace />} 
           />
 
-          {/* Protected User Pages */}
+          {/* Protected User Routes */}
           <Route 
             path="/dashboard" 
-            element={user && user.role === 'user' ? <Dashboard user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'user' ? <Dashboard user={user} /> : <Navigate to="/" replace />} 
           />
+          
           <Route 
             path="/profile" 
-            element={user && user.role === 'user' ? <Profile user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'user' ? <Profile user={user} /> : <Navigate to="/" replace />} 
           />
+          
           <Route 
             path="/sos" 
-            element={user && user.role === 'user' ? <SOSPage user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'user' ? <SOSPage user={user} /> : <Navigate to="/" replace />} 
           />
+          
           <Route 
             path="/map" 
-            element={user && user.role === 'user' ? <MapView user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'user' ? <MapView user={user} /> : <Navigate to="/" replace />} 
           />
+          
           <Route 
             path="/roads" 
-            element={user && user.role === 'user' ? <RoadReports user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'user' ? <RoadReports user={user} /> : <Navigate to="/" replace />} 
           />
+          
           <Route 
             path="/shelters" 
-            element={user && user.role === 'user' ? <Shelters user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'user' ? <Shelters user={user} /> : <Navigate to="/" replace />} 
           />
 
-          {/* Protected Admin Pages */}
+          {/* Protected Admin Routes */}
           <Route 
             path="/admin-dashboard" 
-            element={user && user.role === 'department_admin' ? <AdminDashboard user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'department_admin' ? <AdminDashboard user={user} /> : <Navigate to="/" replace />} 
           />
+          
           <Route 
             path="/superadmin-dashboard" 
-            element={user && user.role === 'super_admin' ? <SuperAdminDashboard user={user} /> : <Navigate to="/" />} 
+            element={user?.role === 'super_admin' ? <SuperAdminDashboard user={user} /> : <Navigate to="/" replace />} 
           />
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Fallback - 404 handling */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
 
-        {user && user.role === 'user' && <ChatBot />}
+        {/* ChatBot only for regular users */}
+        {user?.role === 'user' && <ChatBot />}
+
+        {/* Development debug info */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="fixed bottom-4 right-4 bg-black bg-opacity-50 text-xs text-gray-400 p-2 rounded">
+            User: {user ? user.email : 'None'} | Role: {user ? user.role : 'None'}
+          </div>
+        )}
       </div>
     </Router>
   );
 }
+
+// Add a function to clear cache manually (can be called from console)
+window.clearAppCache = function() {
+  localStorage.clear();
+  sessionStorage.clear();
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      names.forEach(name => caches.delete(name));
+    });
+  }
+  console.log('🧹 App cache cleared manually');
+  window.location.reload();
+};
 
 export default App;
