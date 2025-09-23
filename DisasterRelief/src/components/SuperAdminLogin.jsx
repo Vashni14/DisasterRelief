@@ -45,6 +45,7 @@ const SuperAdminLogin = ({ onLogin }) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       onLogin({
+        id: formData.email,
         email: formData.email,
         name: admin.name,
         role: admin.role,

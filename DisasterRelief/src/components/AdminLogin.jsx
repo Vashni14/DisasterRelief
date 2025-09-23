@@ -71,6 +71,7 @@ const AdminLogin = ({ onLogin }) => {
       }
 
       onLogin({
+        id: formData.email,
         email: formData.email,
         name: admin.name,
         role: admin.role,

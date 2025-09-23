@@ -1,5 +1,33 @@
 import React, { useState, useEffect } from 'react';
 
+// Define SOS_CATEGORIES constant
+const SOS_CATEGORIES = {
+  emergency_response: {
+    name: 'Emergency Response',
+    description: 'Fire, police, and immediate emergency services'
+  },
+  medical_health: {
+    name: 'Medical & Health',
+    description: 'Medical emergencies, injuries, health crises'
+  },
+  infrastructure_utilities: {
+    name: 'Infrastructure & Utilities',
+    description: 'Power outages, water issues, structural damage'
+  },
+  relief_shelter: {
+    name: 'Relief & Shelter',
+    description: 'Shelter, food, and basic necessities'
+  },
+  environment_hazards: {
+    name: 'Environment & Hazards',
+    description: 'Floods, earthquakes, environmental disasters'
+  },
+  community_support: {
+    name: 'Community Support',
+    description: 'Community assistance and support services'
+  }
+};
+
 const SuperAdminDashboard = ({ user, onLogout }) => {
   const [sosAlerts, setSosAlerts] = useState([]);
   const [stats, setStats] = useState({
@@ -52,6 +80,26 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
       status: 'pending',
       createdAt: new Date(Date.now() - 45 * 60000), // 45 minutes ago
       priority: 'critical'
+    },
+    {
+      id: '5',
+      department: 'relief_shelter',
+      category: 'Shelter Needed',
+      location: 'Westside Community',
+      description: 'Families displaced due to flooding',
+      status: 'acknowledged',
+      createdAt: new Date(Date.now() - 20 * 60000), // 20 minutes ago
+      priority: 'high'
+    },
+    {
+      id: '6',
+      department: 'community_support',
+      category: 'Volunteers Needed',
+      location: 'City Center',
+      description: 'Need volunteers for relief distribution',
+      status: 'pending',
+      createdAt: new Date(Date.now() - 10 * 60000), // 10 minutes ago
+      priority: 'medium'
     }
   ];
 
@@ -98,6 +146,11 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
         alert.id === alertId ? { ...alert, status } : alert
       ));
       
+      // Recalculate stats after update
+      calculateStats(sosAlerts.map(alert => 
+        alert.id === alertId ? { ...alert, status } : alert
+      ));
+      
       // Uncomment when Firestore is set up:
       // await updateDoc(doc(db, 'sosAlerts', alertId), {
       //   status,
@@ -132,30 +185,20 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const getTimeAgo = (date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - date) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    return `${Math.floor(diffInMinutes / 1440)}d ago`;
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <header className="bg-gray-800 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold">🚨 Emergency Response Command Center</h1>
-              <p className="text-gray-400 mt-1">Super Admin Dashboard • {user.name}</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                Super Administrator
-              </span>
-              <button
-                onClick={onLogout}
-                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg font-medium transition duration-300"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    
 
       {/* Navigation Tabs */}
       <div className="bg-gray-800 border-b border-gray-700">
@@ -262,20 +305,36 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
               <div className="p-6">
                 {sosAlerts.filter(alert => alert.priority === 'critical' || alert.priority === 'high').length > 0 ? (
                   <div className="space-y-4">
-                    {sosAlerts.filter(alert => alert.priority === 'critical' || alert.priority === 'high').map((alert) => (
+                    {sosAlerts
+                      .filter(alert => alert.priority === 'critical' || alert.priority === 'high')
+                      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                      .slice(0, 5)
+                      .map((alert) => (
                       <div key={alert.id} className="flex items-center justify-between p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
-                        <div>
-                          <div className="flex items-center space-x-3">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
                             <span className={`w-3 h-3 rounded-full ${getPriorityColor(alert.priority)}`}></span>
                             <span className="font-semibold">{SOS_CATEGORIES[alert.department]?.name}</span>
                             <span className="text-gray-400">•</span>
-                            <span>{alert.category}</span>
+                            <span className="text-sm">{alert.category}</span>
+                            <span className="text-gray-400">•</span>
+                            <span className="text-sm text-gray-400">{getTimeAgo(alert.createdAt)}</span>
                           </div>
-                          <p className="text-sm text-gray-300 mt-1">{alert.location} • {alert.description}</p>
+                          <p className="text-sm text-gray-300">{alert.location} • {alert.description}</p>
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(alert.status)}`}>
-                          {alert.status}
-                        </span>
+                        <div className="flex items-center space-x-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(alert.status)}`}>
+                            {alert.status}
+                          </span>
+                          {alert.status !== 'resolved' && (
+                            <button
+                              onClick={() => updateAlertStatus(alert.id, 'acknowledged')}
+                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs"
+                            >
+                              Ack
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -290,7 +349,7 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
         {activeTab === 'alerts' && (
           <div className="bg-gray-800 rounded-lg shadow-lg">
             <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-semibold">All SOS Alerts</h2>
+              <h2 className="text-xl font-semibold">All SOS Alerts ({filteredAlerts.length})</h2>
               <select
                 value={selectedDepartment}
                 onChange={(e) => setSelectedDepartment(e.target.value)}
@@ -316,56 +375,67 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {filteredAlerts.map((alert) => (
-                    <tr key={alert.id} className="hover:bg-gray-750 transition duration-300">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {alert.createdAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <span className="mr-2">
-                            {alert.department === 'emergency_response' && '🚒'}
-                            {alert.department === 'medical_health' && '🏥'}
-                            {alert.department === 'infrastructure_utilities' && '🏗️'}
-                            {alert.department === 'relief_shelter' && '🏠'}
-                            {alert.department === 'environment_hazards' && '🌪️'}
-                            {alert.department === 'community_support' && '👥'}
+                  {filteredAlerts.length > 0 ? (
+                    filteredAlerts.map((alert) => (
+                      <tr key={alert.id} className="hover:bg-gray-750 transition duration-300">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {getTimeAgo(alert.createdAt)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <span className="mr-2">
+                              {alert.department === 'emergency_response' && '🚒'}
+                              {alert.department === 'medical_health' && '🏥'}
+                              {alert.department === 'infrastructure_utilities' && '🏗️'}
+                              {alert.department === 'relief_shelter' && '🏠'}
+                              {alert.department === 'environment_hazards' && '🌪️'}
+                              {alert.department === 'community_support' && '👥'}
+                            </span>
+                            {SOS_CATEGORIES[alert.department]?.name}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">{alert.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">{alert.location}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(alert.priority)}`}>
+                            {alert.priority}
                           </span>
-                          {SOS_CATEGORIES[alert.department]?.name}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">{alert.category}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">{alert.location}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(alert.priority)}`}>
-                          {alert.priority}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(alert.status)}`}>
-                          {alert.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap space-x-2">
-                        {alert.status !== 'resolved' && (
-                          <>
-                            <button
-                              onClick={() => updateAlertStatus(alert.id, 'acknowledged')}
-                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs"
-                            >
-                              Ack
-                            </button>
-                            <button
-                              onClick={() => updateAlertStatus(alert.id, 'resolved')}
-                              className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs"
-                            >
-                              Resolve
-                            </button>
-                          </>
-                        )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(alert.status)}`}>
+                            {alert.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap space-x-2">
+                          {alert.status !== 'resolved' && (
+                            <>
+                              <button
+                                onClick={() => updateAlertStatus(alert.id, 'acknowledged')}
+                                className="px-3 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs"
+                              >
+                                Ack
+                              </button>
+                              <button
+                                onClick={() => updateAlertStatus(alert.id, 'resolved')}
+                                className="px-3 py-1 bg-green-600 hover:bg-green-700 rounded text-xs"
+                              >
+                                Resolve
+                              </button>
+                            </>
+                          )}
+                          {alert.status === 'resolved' && (
+                            <span className="text-green-400 text-xs">Completed</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-8 text-center text-gray-400">
+                        No alerts found for the selected department
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>
@@ -374,38 +444,58 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
 
         {activeTab === 'departments' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(SOS_CATEGORIES).map(([key, category]) => (
-              <div key={key} className="bg-gray-800 rounded-lg shadow-lg p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">{category.name}</h3>
-                  <span className="text-2xl">
-                    {key === 'emergency_response' && '🚒'}
-                    {key === 'medical_health' && '🏥'}
-                    {key === 'infrastructure_utilities' && '🏗️'}
-                    {key === 'relief_shelter' && '🏠'}
-                    {key === 'environment_hazards' && '🌪️'}
-                    {key === 'community_support' && '👥'}
-                  </span>
+            {Object.entries(SOS_CATEGORIES).map(([key, category]) => {
+              const departmentAlerts = sosAlerts.filter(alert => alert.department === key);
+              const pendingAlerts = departmentAlerts.filter(alert => alert.status === 'pending');
+              const resolvedAlerts = departmentAlerts.filter(alert => alert.status === 'resolved');
+              
+              return (
+                <div key={key} className="bg-gray-800 rounded-lg shadow-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">{category.name}</h3>
+                    <span className="text-2xl">
+                      {key === 'emergency_response' && '🚒'}
+                      {key === 'medical_health' && '🏥'}
+                      {key === 'infrastructure_utilities' && '🏗️'}
+                      {key === 'relief_shelter' && '🏠'}
+                      {key === 'environment_hazards' && '🌪️'}
+                      {key === 'community_support' && '👥'}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-400 mb-4">{category.description}</p>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Total Alerts:</span>
+                      <span className="font-semibold">{departmentAlerts.length}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Pending:</span>
+                      <span className="font-semibold text-yellow-400">{pendingAlerts.length}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Resolved:</span>
+                      <span className="font-semibold text-green-400">{resolvedAlerts.length}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Response Time:</span>
+                      <span className="font-semibold text-green-400">~15min</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Success Rate:</span>
+                      <span className="font-semibold text-green-400">
+                        {departmentAlerts.length > 0 
+                          ? `${Math.round((resolvedAlerts.length / departmentAlerts.length) * 100)}%`
+                          : 'N/A'
+                        }
+                      </span>
+                    </div>
+                  </div>
+                  <button className="w-full mt-4 bg-gray-700 hover:bg-gray-600 py-2 rounded text-sm transition duration-300">
+                    View Department Details
+                  </button>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Active Alerts:</span>
-                    <span className="font-semibold">{stats.byDepartment[key] || 0}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Response Time:</span>
-                    <span className="font-semibold text-green-400">~15min</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Success Rate:</span>
-                    <span className="font-semibold text-green-400">94%</span>
-                  </div>
-                </div>
-                <button className="w-full mt-4 bg-gray-700 hover:bg-gray-600 py-2 rounded text-sm transition duration-300">
-                  Manage Department
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -446,6 +536,44 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
                     <span className="text-green-400">4.8/5</span>
                   </div>
                 </div>
+              </div>
+            </div>
+            
+            {/* Department Performance */}
+            <div className="mt-6">
+              <h3 className="font-semibold mb-4">Department Performance</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(SOS_CATEGORIES).map(([key, category]) => {
+                  const deptAlerts = sosAlerts.filter(alert => alert.department === key);
+                  const resolved = deptAlerts.filter(alert => alert.status === 'resolved').length;
+                  const successRate = deptAlerts.length > 0 ? (resolved / deptAlerts.length) * 100 : 0;
+                  
+                  return (
+                    <div key={key} className="bg-gray-750 p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">{category.name}</span>
+                        <span className="text-2xl">
+                          {key === 'emergency_response' && '🚒'}
+                          {key === 'medical_health' && '🏥'}
+                          {key === 'infrastructure_utilities' && '🏗️'}
+                          {key === 'relief_shelter' && '🏠'}
+                          {key === 'environment_hazards' && '🌪️'}
+                          {key === 'community_support' && '👥'}
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-600 rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full bg-green-500" 
+                          style={{ width: `${successRate}%` }}
+                        ></div>
+                      </div>
+                      <div className="flex justify-between text-sm mt-1">
+                        <span>Success Rate</span>
+                        <span>{Math.round(successRate)}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
