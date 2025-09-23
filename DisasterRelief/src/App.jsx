@@ -225,10 +225,10 @@ function App() {
             element={user?.role === 'user' ? <Dashboard user={user} /> : <Navigate to="/" replace />} 
           />
           
-          <Route 
-            path="/profile" 
-            element={user?.role === 'user' ? <Profile user={user} /> : <Navigate to="/" replace />} 
-          />
+<Route 
+  path="/profile" 
+  element={user?.role === 'user' ? <Profile user={user} setUser={setUser} /> : <Navigate to="/" replace />} 
+/>
           
           <Route 
             path="/sos" 
