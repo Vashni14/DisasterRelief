@@ -52,7 +52,7 @@ function MapClickHandler({ onMapClick }) {
   return null;
 }
 
-const API_URL = 'http://localhost:5002/api/road-reports';
+const API_URL = 'https://disasterrelief-resurge.up.railway.app/api/road-reports';
 
 const RoadReports = ({ user }) => {
   const [reports, setReports] = useState([]);
