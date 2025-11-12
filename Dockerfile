@@ -3,9 +3,9 @@
 # ===============================================================
 FROM node:18 AS frontend
 WORKDIR /app/frontend
-COPY frontend-react/package*.json ./
+COPY frontend/package*.json ./
 RUN npm install
-COPY frontend-react/ .
+COPY frontend/ .
 RUN npm run build
 
 # ===============================================================
@@ -13,9 +13,9 @@ RUN npm run build
 # ===============================================================
 FROM node:18 AS backend
 WORKDIR /app/backend
-COPY backend-node/package*.json ./
+COPY backend/package*.json ./
 RUN npm install
-COPY backend-node/ .
+COPY backend/ .
 
 # ===============================================================
 # STAGE 3: Build FastAPI backend
