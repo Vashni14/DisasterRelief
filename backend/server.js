@@ -258,13 +258,7 @@ const ensureDepartmentField = async () => {
 };
 
 // Error handling middleware
-app.use((error, req, res, next) => {
-  console.error("Unhandled error:", error);
-  res.status(500).json({
-    success: false,
-    message: "Internal server error",
-  });
-});
+
 
 // 404 handler
 app.use("*", (req, res) => {
@@ -283,6 +277,13 @@ app.get("*", (req, res) => {
   // Skip API and ML routes
   if (req.path.startsWith("/api") || req.path.startsWith("/ml")) return res.status(404).end();
   res.sendFile(path.resolve(__dirname, "../frontend", "index.html"));
+});
+app.use((error, req, res, next) => {
+  console.error("Unhandled error:", error);
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
+  });
 });
 const PORT = process.env.PORT || 5002;
 
