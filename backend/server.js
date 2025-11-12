@@ -23,17 +23,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Import sendWhatsAppMessage from your notifications module
 const { sendWhatsAppMessage } = require('./notifications');
-const path = require("path");
-
-// Serve static files from React build
-app.use(express.static(path.resolve(__dirname, "../frontend")));
-
-// Catch-all route to serve index.html for SPA
-app.get("*", (req, res) => {
-  // Skip API and ML routes
-  if (req.path.startsWith("/api") || req.path.startsWith("/ml")) return res.status(404).end();
-  res.sendFile(path.resolve(__dirname, "../frontend", "index.html"));
-});
 // Routes
 app.use('/api/volunteers', volunteerRoutes);
 app.use('/api/tasks', taskRoutes);
@@ -284,7 +273,17 @@ app.use("*", (req, res) => {
     message: "API endpoint not found",
   });
 });
+const path = require("path");
 
+// Serve static files from React build
+app.use(express.static(path.resolve(__dirname, "../frontend")));
+
+// Catch-all route to serve index.html for SPA
+app.get("*", (req, res) => {
+  // Skip API and ML routes
+  if (req.path.startsWith("/api") || req.path.startsWith("/ml")) return res.status(404).end();
+  res.sendFile(path.resolve(__dirname, "../frontend", "index.html"));
+});
 const PORT = process.env.PORT || 5002;
 
 // Start server after ensuring roles are updated
