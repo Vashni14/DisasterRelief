@@ -259,25 +259,22 @@ const ensureDepartmentField = async () => {
 
 // Error handling middleware
 
-
-// 404 handler
-app.use("*", (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: "API endpoint not found",
-  });
-});
+// ------------------- Serve React Build ------------------- //
 const path = require("path");
-
-// Serve static files from React build
 app.use(express.static(path.resolve(__dirname, "../frontend")));
 
-// Catch-all route to serve index.html for SPA
+// Catch-all route for React (Single Page App)
 app.get("*", (req, res) => {
-  // Skip API and ML routes
-  if (req.path.startsWith("/api") || req.path.startsWith("/ml")) return res.status(404).end();
+  if (req.path.startsWith("/api") || req.path.startsWith("/ml")) {
+    return res.status(404).json({
+      success: false,
+      message: "API endpoint not found",
+    });
+  }
   res.sendFile(path.resolve(__dirname, "../frontend", "index.html"));
 });
+
+// ------------------- Error Handler ------------------- //
 app.use((error, req, res, next) => {
   console.error("Unhandled error:", error);
   res.status(500).json({
@@ -285,33 +282,35 @@ app.use((error, req, res, next) => {
     message: "Internal server error",
   });
 });
+
+// ------------------- 404 Handler (only for unmatched routes) ------------------- //
+app.use("*", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Resource not found",
+  });
+});
+
+// ------------------- Server Start ------------------- //
 const PORT = process.env.PORT || 5002;
 
-// Start server after ensuring roles are updated
 const startServer = async () => {
   try {
-    // Wait a moment for database connection to be fully established
     await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Ensure department field exists
     await ensureDepartmentField();
-    
-    // Update profiles with roles and sync admins
     await updateProfilesWithRoles();
-    
-    // Start the server
+
     app.listen(PORT, () => {
-      console.log(`\nProfile service running on port ${PORT}`);
+      console.log(`\n✅ Profile service running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`API Health: http://localhost:${PORT}/api/health`);
-      console.log(`\nReady for admin authentication!`);
-      console.log(`   Use the email/password combinations from your credentials`);
+      console.log(`Health Check: http://localhost:${PORT}/api/health`);
+      console.log(`Ready for admin authentication!`);
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 };
 
-// Start the server
 startServer();
+
