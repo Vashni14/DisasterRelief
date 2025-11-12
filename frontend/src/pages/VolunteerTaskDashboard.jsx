@@ -19,7 +19,7 @@ const VolunteerTaskDashboard = () => {
   });
 
   const [volunteerId, setVolunteerId] = useState(null);
-  const API_BASE_URL = 'http://localhost:5002/api';
+  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
 
   // Safe render helper function
   const safeRender = (value, fallback = 'N/A') => {

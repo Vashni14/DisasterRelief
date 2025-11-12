@@ -19,7 +19,7 @@ const SOSManagement = ({ user, selectedDepartment, getAuthHeaders }) => {
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
 
-  const API_BASE_URL = 'http://localhost:5002/api';
+  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
 
   const departments = [
     { value: 'emergency_response', label: 'Emergency Response' },

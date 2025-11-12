@@ -74,7 +74,7 @@ const RoadsManagement = ({ user, getAuthHeaders }) => {
     clear: 0
   });
 
-  const API_BASE_URL = 'http://localhost:5002/api';
+  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
 
   // Fetch road reports
   const fetchRoadReports = async () => {

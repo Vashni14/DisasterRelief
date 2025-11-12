@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_BACKEND || "http://localhost:5002";
+const API_URL = import.meta.env.VITE_BACKEND || "https://disasterrelief-resurge.up.railway.app";
 
 const SOSReporting = ({ user }) => {
   const navigate = useNavigate();

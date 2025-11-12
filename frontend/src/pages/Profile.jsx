@@ -29,7 +29,7 @@ const Profile = ({ user, setUser }) => {
 
   // Get API URL from environment or use default
   
-const API_BASE_URL = 'http://localhost:5002/api';
+const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   const relationships = ['Parent', 'Sibling', 'Spouse', 'Child', 'Friend', 'Relative', 'Colleague', 'Other'];
   
@@ -71,7 +71,7 @@ const API_BASE_URL = 'http://localhost:5002/api';
 
   const checkBackendAvailability = async () => {
     try {
-      const response = await fetch('http://localhost:5002/api/health', {
+      const response = await fetch('https://disasterrelief-resurge.up.railway.app/api/health', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

@@ -152,7 +152,7 @@ const Shelters = ({ user }) => {
   const [showOccupancyModal, setShowOccupancyModal] = useState(false);
   const [selectedShelter, setSelectedShelter] = useState(null);
 
-  const API_BASE_URL = 'http://localhost:5002/api';
+  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
 
   const facilityOptions = ['Food', 'Water', 'Medical', 'Beds', 'Sanitation', 'Electricity', 'WiFi', 'Childcare', 'Accessibility'];
 

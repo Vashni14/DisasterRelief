@@ -23,7 +23,7 @@ const PledgeSupport = () => {
     description: ''
   });
 
-  const API_BASE_URL = 'http://localhost:5002/api/partners';
+  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api/partners';
 
   const organizationTypes = [
     'NGO', 'Trust', 'Society', 'Private Company', 'Foundation',
