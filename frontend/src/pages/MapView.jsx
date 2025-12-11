@@ -52,7 +52,7 @@ const MapView = ({ user }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
+  const API_BASE_URL = 'https://disasterrelief-ju4h.onrender.com/api';
 
   // Get auth headers
   const getAuthHeaders = () => {

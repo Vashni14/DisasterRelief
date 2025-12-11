@@ -52,7 +52,7 @@ function MapClickHandler({ onMapClick }) {
   return null;
 }
 
-const API_URL = 'srv-d4ths6mr433s73ci2ssg/api/road-reports';
+const API_URL = 'https://disasterrelief-ju4h.onrender.com/api/road-reports';
 
 const RoadReports = ({ user }) => {
   const [reports, setReports] = useState([]);

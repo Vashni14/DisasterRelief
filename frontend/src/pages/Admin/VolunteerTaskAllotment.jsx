@@ -40,7 +40,7 @@ const VolunteerTaskAllotment = () => {
     completed: 0
   });
 
-  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
+  const API_BASE_URL = 'https://disasterrelief-ju4h.onrender.com/api';
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef([]);

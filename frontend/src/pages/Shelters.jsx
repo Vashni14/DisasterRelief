@@ -152,7 +152,7 @@ const Shelters = ({ user }) => {
   const [showOccupancyModal, setShowOccupancyModal] = useState(false);
   const [selectedShelter, setSelectedShelter] = useState(null);
 
-  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
+  const API_BASE_URL = 'https://disasterrelief-ju4h.onrender.com/api';
 
   const facilityOptions = ['Food', 'Water', 'Medical', 'Beds', 'Sanitation', 'Electricity', 'WiFi', 'Childcare', 'Accessibility'];
 

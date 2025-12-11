@@ -12,7 +12,7 @@ const ReliefPartners = () => {
   const fetchPartners = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('srv-d4ths6mr433s73ci2ssg/api/partners');
+      const response = await axios.get('https://disasterrelief-ju4h.onrender.com/api/partners');
       
       if (response.data.success) {
         setPartners(response.data.data);
@@ -33,7 +33,7 @@ const ReliefPartners = () => {
 
   const handleContactClick = async (partnerId) => {
     try {
-      await axios.post(`srv-d4ths6mr433s73ci2ssg/api/partners/${partnerId}/contact`);
+      await axios.post(`https://disasterrelief-ju4h.onrender.com/api/partners/${partnerId}/contact`);
       console.log('Contact click tracked');
     } catch (err) {
       console.error('Error tracking contact:', err);

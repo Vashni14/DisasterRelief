@@ -29,7 +29,7 @@ const Profile = ({ user, setUser }) => {
 
   // Get API URL from environment or use default
   
-const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
+const API_BASE_URL = 'https://disasterrelief-ju4h.onrender.com/api';
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
   const relationships = ['Parent', 'Sibling', 'Spouse', 'Child', 'Friend', 'Relative', 'Colleague', 'Other'];
   
@@ -71,7 +71,7 @@ const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
 
   const checkBackendAvailability = async () => {
     try {
-      const response = await fetch('srv-d4ths6mr433s73ci2ssg/api/health', {
+      const response = await fetch('https://disasterrelief-ju4h.onrender.com/api/health', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

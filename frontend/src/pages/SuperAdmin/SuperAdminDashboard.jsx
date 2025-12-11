@@ -76,7 +76,7 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
+  const API_BASE_URL = 'https://disasterrelief-ju4h.onrender.com/api';
 
   // Fetch SOS alerts from backend
   const fetchSOSAlerts = async () => {
