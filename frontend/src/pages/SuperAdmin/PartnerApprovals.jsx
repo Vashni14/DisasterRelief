@@ -18,7 +18,7 @@ const PartnerApprovals = ({ user }) => {
     description: ''
   });
 
-  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api/partners';
+  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api/partners';
 
   const supportIcons = {
     money: '💰',

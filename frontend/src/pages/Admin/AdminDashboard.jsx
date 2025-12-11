@@ -27,7 +27,7 @@ const AdminDashboard = ({ user }) => {
     responseTime: '15min'
   });
 
-  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
+  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
 
   // Department options
   const departments = [

@@ -76,7 +76,7 @@ const SuperAdminDashboard = ({ user, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
-  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
+  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
 
   // Fetch SOS alerts from backend
   const fetchSOSAlerts = async () => {

@@ -7,7 +7,7 @@ const News = ({ user }) => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const API_BASE_URL = 'https://disasterrelief-resurge.up.railway.app/api';
+  const API_BASE_URL = 'srv-d4ths6mr433s73ci2ssg/api';
 
   const categories = [
     { id: 'all', name: 'All Disasters', icon: '🌪️' },
