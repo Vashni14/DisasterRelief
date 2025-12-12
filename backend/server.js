@@ -8,7 +8,6 @@ const Profile = require("./models/Profile");
 connectDB();
 
 const app = express();
-const app = express();
 
 // ------------------- Proper CORS for Netlify + Localhost -------------------
 const ALLOWED_ORIGINS = [
