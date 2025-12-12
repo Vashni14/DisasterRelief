@@ -311,6 +311,14 @@ const startServer = async () => {
     process.exit(1);
   }
 };
+// ------------- Prevent Render Free Tier Sleep -------------
+const fetch = require("node-fetch");
+
+setInterval(() => {
+  fetch("https://disasterrelief-ju4h.onrender.com/api/health")
+    .then(() => console.log("🔄 Keep-alive: server pinged"))
+    .catch(() => console.log("⚠️ Server waking up..."));
+}, 12 * 60 * 1000); // every 12 minutes
 
 startServer();
 
