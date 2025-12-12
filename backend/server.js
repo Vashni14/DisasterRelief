@@ -31,9 +31,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-// ------------------- Existing Code -------------------
-const disasterRoutes = require("./routes/disasterRoutes");
-
 const disasterRoutes = require("./routes/disasterRoutes");
 const sosRoutes = require('./routes/sosRoutes'); 
 const RoadReport = require('./routes/RoadReport');
