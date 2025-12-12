@@ -8,6 +8,33 @@ const Profile = require("./models/Profile");
 connectDB();
 
 const app = express();
+const app = express();
+
+// ------------------- Proper CORS for Netlify + Localhost -------------------
+const ALLOWED_ORIGINS = [
+  "http://localhost:5173",
+  "https://disaster-relief14.netlify.app",
+  "https://tranquil-concha-634cc9.netlify.app"
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return callback(null, true);
+    console.log("❌ Blocked by CORS:", origin);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// ------------------- Existing Code -------------------
+const disasterRoutes = require("./routes/disasterRoutes");
+
 const disasterRoutes = require("./routes/disasterRoutes");
 const sosRoutes = require('./routes/sosRoutes'); 
 const RoadReport = require('./routes/RoadReport');
@@ -18,7 +45,6 @@ const volunteerRoutes = require('./routes/volunteers');
 
 const partnerRoutes = require('./routes/Partner'); 
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // Import sendWhatsAppMessage from your notifications module
