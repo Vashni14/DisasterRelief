@@ -1,5 +1,5 @@
 // frontend/src/services/chatApiService.js
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://disaster-relief14.netlify.app';
+const API_BASE_URL = "https://disasterrelief-ju4h.onrender.com";
 
 class ChatApiService {
   async sendMessage(message, chatHistory = []) {
