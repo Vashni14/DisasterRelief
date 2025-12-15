@@ -334,21 +334,20 @@ const startServer = async () => {
   }
 };
 // ------------------- Keep Awake (10 AM – 10 PM IST) -------------------
-const fetch = require("node-fetch");
-
 setInterval(() => {
   const now = new Date();
   const utcHour = now.getUTCHours(); // Current hour in UTC
 
   // Active window: 10 AM – 10 PM IST → 4:00 – 17:00 UTC
   if (utcHour >= 4 && utcHour <= 17) {
-    fetch("https://disasterrelief-ju4h.onrender.com/api/health")
+    globalThis.fetch("https://disasterrelief-ju4h.onrender.com/api/health")
       .then(() => console.log("☀️ Keep-alive ping sent"))
       .catch(() => console.log("⚠️ Backend waking from sleep..."));
   } else {
     console.log("🌙 Night time — no keep-alive ping (saving hours)");
   }
 }, 12 * 60 * 1000); // ping every 12 minutes
+
 
 startServer();
 
