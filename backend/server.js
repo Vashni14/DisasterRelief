@@ -13,7 +13,8 @@ const app = express();
 const ALLOWED_ORIGINS = [
   "http://localhost:5173",
   "https://disaster-relief14.netlify.app",
-  "https://tranquil-concha-634cc9.netlify.app"
+  "https://tranquil-concha-634cc9.netlify.app",
+  "https://disaster-relief-steel.vercel.app"
 ];
 
 const corsOptions = {
